@@ -30,11 +30,19 @@ class FTPClient:
             self.close_command()
         if command == "QUIT":
             self.quit_command()
-        if self.sock:
-            self.sock.sendall(command.encode("utf-8"))
+        if self.sock: # i.e if it's a PUT or GET command
+            # join them back together and send to server side.
+            data = command, *args
+            data = " ".join(data)
+            self.sock.sendall(data.encode("utf-8"))
             response = self.sock.recv(1024).decode("utf-8")
             print("Received:", response)
-            
+            if command == "GET":
+                self.handle_get(response)      
+
+    def handle_get(self, response):
+        with open(f"{CLIENT_DIR}/{response}", "w") as file:
+            file.write(response)
            
     # commands that are processed on client side: OPEN, CLOSE, QUIT
     def open_command(self, port):

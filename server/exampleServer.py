@@ -5,7 +5,7 @@ from socket import *
 SERVER_DIR = 'server'
 
 class FTPServer:
-    def __init__(self, host='127.0.0.1', port=12000):
+    def __init__(self, host='127.0.0.1', port=8000):
         self.host = host
         self.port = port
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -33,15 +33,18 @@ class FTPServer:
             return self.handle_get(args)
         elif command == "PUT":
             return self.handle_put(args)
-        # Implement other commands (OPEN, CLOSE) as needed
         return "OK"
     
     def handle_get(self, args):
-        # Implement the GET operation
-        return "GET command processed"
+        filename = args[0]
+        if os.path.isfile(f"{SERVER_DIR}/{filename}"):
+            with open(f"{SERVER_DIR}/{filename}", "r") as file:
+                # return the filename and contents of file
+                return file.read()
+        else:
+            return f"File {filename} not found"
 
     def handle_put(self, args):
-        # Implement the PUT operation
         return "PUT command processed"
 
     
