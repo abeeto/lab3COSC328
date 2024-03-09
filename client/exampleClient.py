@@ -36,12 +36,19 @@ class FTPClient:
             data = " ".join(data)
             self.sock.sendall(data.encode("utf-8"))
             response = self.sock.recv(1024).decode("utf-8")
+            if command == "GET" and len(args) == 1:
+                self.handle_get(response, args)
+            elif len(args) > 1:
+                print("GET command requires a single filename. Usage: GET <filename>")
             print("Received:", response)
-            if command == "GET":
-                self.handle_get(response)      
 
-    def handle_get(self, response):
-        with open(f"{CLIENT_DIR}/{response}", "w") as file:
+
+    def handle_get(self, response, args):
+        if response == "ERROR404":
+            print(f"No file found. Please check the filename and try again.")
+            return
+        filename = args[0]
+        with open(f"{CLIENT_DIR}/{filename}", "w") as file:
             file.write(response)
            
     # commands that are processed on client side: OPEN, CLOSE, QUIT

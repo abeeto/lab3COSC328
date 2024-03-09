@@ -39,15 +39,11 @@ class FTPServer:
         filename = args[0]
         if os.path.isfile(f"{SERVER_DIR}/{filename}"):
             with open(f"{SERVER_DIR}/{filename}", "r") as file:
-                # return the filename and contents of file
                 return file.read()
-        else:
-            return f"File {filename} not found"
+        return "ERROR404"
 
     def handle_put(self, args):
         return "PUT command processed"
-
-    
     def start(self):
         conn, addr = self.sock.accept()
         self.handle_client(conn, addr)
