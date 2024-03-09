@@ -43,7 +43,12 @@ class FTPServer:
         return "ERROR404"
 
     def handle_put(self, args):
-        return "PUT command processed"
+        filename = args[0]
+        content = " ".join(args[1:])
+        with open(f"{SERVER_DIR}/{filename}", "w") as file:
+            file.write(content)
+        return "OK"
+    
     def start(self):
         conn, addr = self.sock.accept()
         self.handle_client(conn, addr)

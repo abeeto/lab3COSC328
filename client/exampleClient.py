@@ -1,5 +1,5 @@
 from socket import *
-
+import os
 # Constants for the client directory
 CLIENT_DIR = 'client'
 
@@ -34,14 +34,28 @@ class FTPClient:
             # join them back together and send to server side.
             data = command, *args
             data = " ".join(data)
-            self.sock.sendall(data.encode("utf-8"))
-            response = self.sock.recv(1024).decode("utf-8")
             if command == "GET" and len(args) == 1:
+                self.sock.sendall(data.encode("utf-8"))
+                response = self.sock.recv(1024).decode("utf-8")
                 self.handle_get(response, args)
+                print("Received:", response)
             elif len(args) > 1:
                 print("GET command requires a single filename. Usage: GET <filename>")
-            print("Received:", response)
-
+            if command == "PUT" and len(args) == 1:
+                filename = args[0]
+                if not os.path.isfile(f"{CLIENT_DIR}/{filename}"):
+                    print(f"No file found with name {filename}. Please check the filename and try again.")
+                    return
+                with open(f"{CLIENT_DIR}/{filename}", "r") as file:
+                    content = file.read()
+                data = f"{command} {filename} {content}"
+                self.sock.sendall(data.encode("utf-8"))
+                print("Sent:", data)
+                response = self.sock.recv(1024).decode("utf-8")
+                print("Received:", response)
+            elif len(args) > 1:
+                print("PUT command requires a single filename. Usage: PUT <filename>")
+            
 
     def handle_get(self, response, args):
         if response == "ERROR404":
